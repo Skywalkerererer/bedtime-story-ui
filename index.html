@@ -66,7 +66,7 @@
             e.preventDefault();
             $('#story-container').hide();
             $.ajax({
-                url: 'https://<NGROK_URL>/webhook/generate-story', // Replace with your ngrok URL
+                url: 'https://57d3-218-250-247-190.ngrok-free.app/webhook/generate-story',
                 type: 'POST',
                 data: JSON.stringify($(this).serializeObject()),
                 contentType: 'application/json',
