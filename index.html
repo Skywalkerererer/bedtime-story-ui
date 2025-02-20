@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>AI睡前故事生成</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; background: #F5F5F5; color: #9B7E6F; }
+        h1 { font-size: 24px; margin-bottom: 20px; }
+        .question { color: blue; font-weight: bold; }
+        .motion { color: green; font-weight: bold; }
+        button { background: #9B7E6F; color: white; padding: 10px 20px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; min-height: 44px; }
+        input, select { margin: 5px 0; padding: 8px; width: 90%; max-width: 300px; border: 1px solid #9B7E6F; border-radius: 5px; min-height: 44px; }
+        label { display: block; margin-top: 10px; }
+        #story-container { margin-top: 20px; display: none; }
+        #story-text { background: white; padding: 10px; border: 1px solid #9B7E6F; border-radius: 5px; max-height: 300px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <h1>生成你的睡前故事</h1>
+    <form id="story-form">
+        <label>语言/Language:</label>
+        <select name="language">
+            <option value="Chinese (Simplified)">简体中文</option>
+            <option value="Chinese (Traditional)">繁体中文</option>
+            <option value="Cantonese">粤语</option>
+            <option value="English">English</option>
+        </select>
+        <label>孩子名字/Child’s Name:</label>
+        <input type="text" name="child_name" maxlength="20" placeholder="e.g., 小明/Xiaoming" required>
+        <label>年龄/Age Group:</label>
+        <select name="age_group">
+            <option value="3-5">3-5</option>
+            <option value="6-8">6-8</option>
+            <option value="9-12">9-12</option>
+        </select>
+        <label>喜欢的角色/Favorite Character:</label>
+        <input type="text" name="favorite_char" maxlength="20" placeholder="e.g., 龙/Dragon" required>
+        <label>地点/Location:</label>
+        <input type="text" name="location" maxlength="20" placeholder="e.g., 森林/Forest" required>
+        <label>主角1/Main Character 1:</label>
+        <input type="text" name="char1" maxlength="20" placeholder="e.g., 小龙/Little Dragon" required>
+        <label>主角2/Main Character 2:</label>
+        <input type="text" name="char2" maxlength="20" placeholder="e.g., 月亮仙女/Moon Fairy" required>
+        <label>类型/Story Type:</label>
+        <select name="genre">
+            <option value="冒险">冒险</option>
+            <option value="奇幻">奇幻</option>
+            <option value="神秘">神秘</option>
+        </select>
+        <label>故事长度/Story Length:</label>
+        <input type="text" name="story_length" placeholder="2 minutes">
+        <label>寓意/Moral Lesson:</label>
+        <input type="text" name="moral_lesson" maxlength="50" placeholder="e.g., 善良/Be kind">
+        <label><input type="checkbox" name="include_interactive" checked> 包含互动元素/Include Interactive Elements</label>
+        <button type="submit" style="margin-top: 20px;">Create Story</button>
+    </form>
+    <div id="story-container">
+        <p id="story-text"></p>
+        <audio id="preview" controls><source src="" type="audio/mpeg"></audio>
+        <a id="download-link" href="#" download="story.mp3">Download Audio</a>
+    </div>
+    <script>
+        $.fn.serializeObject = function() { var o = {}; var a = this.serializeArray(); $.each(a, function() { o[this.name] = this.value || ''; }); return o; };
+        $('#story-form').submit(function(e) {
+            e.preventDefault();
+            $('#story-container').hide();
+            $.ajax({
+                url: 'https://<NGROK_URL>/webhook/generate-story', // Replace with your ngrok URL
+                type: 'POST',
+                data: JSON.stringify($(this).serializeObject()),
+                contentType: 'application/json',
+                success: function(data) {
+                    $('#story-text').html(data.story.replace(/\[问题\]/g, '<span class="question">[问题]</span>')
+                        .replace(/\[动作\]/g, '<span class="motion">[动作]</span>'));
+                    $('#preview source').attr('src', 'data:audio/mpeg;base64,' + data.audio);
+                    $('#preview')[0].load();
+                    $('#download-link').attr('href', 'data:audio/mpeg;base64,' + data.audio);
+                    $('#story-container').show();
+                },
+                error: function() { alert('Oops, something went wrong.'); }
+            });
+        });
+    </script>
+</body>
+</html>
